@@ -1,0 +1,5 @@
+*
+!*.csproj
+!*.cs
+!launchSettings.json
+!appsettings*.json
