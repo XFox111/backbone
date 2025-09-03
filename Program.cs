@@ -40,11 +40,18 @@ app.MapHub<WsHub>("/ws", options =>
 app.MapPost("/send",
 	static async (
 		[FromServices] IHubContext<WsHub> hubContext, [FromServices] ILogger<Program> logger,
-		[FromQuery] string id, [FromBody] string data
+		[FromQuery] string? id, [FromBody] string? data
 	) =>
 	{
+		if (string.IsNullOrWhiteSpace(id) || id.Length > 64)
+			return Results.BadRequest("Connection ID is required and must be at most 64 characters long.");
+
+		foreach (char c in id)
+			if (!char.IsLetterOrDigit(c) && c != '-' && c != '_')
+				return Results.BadRequest("Connection ID contains invalid characters.");
+
 		if (string.IsNullOrWhiteSpace(data) || data.Length > 66_560)
-			return Results.BadRequest();
+			return Results.BadRequest("Body is required and must be at most 66,560 characters long.");
 
 		logger.LogDebug("Received payload for connection '{id}' (package length: {len})", id, data.Length);
 		await hubContext.Clients.Client(id).SendAsync("ReceiveData", data);
