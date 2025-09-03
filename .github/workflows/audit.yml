@@ -1,0 +1,41 @@
+name: "Audit pipeline"
+
+on:
+  push:
+    branches: [ "main", "next" ]
+    paths-ignore:
+      - '.devcontainer/*'
+      - '.github/*'
+      - '!.github/workflows/audit.yml'
+      - '.vscode/*'
+      - '**.md'
+      - 'Properties/launchSettings.json'
+      - 'appsettings*.json'
+      - 'LICENSE'
+  pull_request:
+    branches: [ "main", "next" ]
+    paths-ignore:
+      - '.devcontainer/*'
+      - '.github/*'
+      - '!.github/workflows/ci.yml'
+      - '.vscode/*'
+      - '**.md'
+      - 'Properties/launchSettings.json'
+      - 'appsettings*.json'
+      - 'LICENSE'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: "backbone:ci"

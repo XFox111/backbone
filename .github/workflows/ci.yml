@@ -1,33 +1,9 @@
 name: "CI pipeline"
 
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '.devcontainer/*'
-      - '.github/*'
-      - '!.github/workflows/ci.yml'
-      - '.vscode/*'
-      - '**.md'
-      - 'Properties/launchSettings.json'
-      - 'LICENSE'
-  pull_request:
-    branches: [ "main", "next" ]
-    paths-ignore:
-      - '.devcontainer/*'
-      - '.github/*'
-      - '!.github/workflows/ci.yml'
-      - '.vscode/*'
-      - '**.md'
-      - 'Properties/launchSettings.json'
-      - 'LICENSE'
+  release:
+    types: [ published ]
   workflow_dispatch:
-    inputs:
-      push:
-        type: boolean
-        required: false
-        default: false
-        description: "Push to Docker Hub"
 
 jobs:
   build:
@@ -37,7 +13,12 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Update assembly version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sed -i 's|AssemblyVersion("1.0.0.0")|AssemblyVersion("${{ github.ref_name }}")|' Program.cs
 
       - uses: docker/metadata-action@v5
         id: meta
@@ -47,17 +28,15 @@ jobs:
             ghcr.io/${{ github.repository }}
           tags: |
             latest
-            ${{ github.sha }}
+            ${{ github.ref_name }}
 
       - name: "Login to Docker Hub"
-        if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: "Login to GitHub Container Registry"
-        if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -67,5 +46,5 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' || github.event.inputs.push == 'true' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}

@@ -17,4 +17,5 @@ COPY --from=build /out/Backbone .
 COPY --from=build /out/appsettings*.json .
 
 EXPOSE 80
-ENTRYPOINT [ "./Backbone", "--urls", "http://*:80" ]
+ENTRYPOINT [ "./Backbone" ]
+CMD [ "--urls", "http://*:80" ]

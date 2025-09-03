@@ -1,6 +1,11 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyCompany("Eugene Fox")]
+[assembly: AssemblyCopyright("© Eugene Fox 2025")]
 
 WebApplicationBuilder builder = WebApplication.CreateSlimBuilder(args);
 
