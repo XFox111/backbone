@@ -14,4 +14,9 @@
 		<StripSymbols>true</StripSymbols>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="9.0.8" />
+		<PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="9.0.8" />
+	</ItemGroup>
+
 </Project>
