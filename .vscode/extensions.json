@@ -6,6 +6,7 @@
 		"Gruntfuggly.todo-tree",
 		"ms-dotnettools.csdevkit",
 		"patcx.vscode-nuget-gallery",
-		"saeris.markdown-github-alerts"
+		"saeris.markdown-github-alerts",
+		"humao.rest-client"
 	]
 }
