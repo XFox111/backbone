@@ -1,5 +1,5 @@
+
 using System.Reflection;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -10,14 +10,6 @@ using Microsoft.AspNetCore.SignalR;
 WebApplicationBuilder builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddSignalR();
-
-builder.Services.ConfigureHttpJsonOptions(options =>
-	options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default)
-);
-builder.Services.Configure<JsonHubProtocolOptions>(options =>
-	options.PayloadSerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default)
-);
-
 builder.Services.AddCors(options =>
 {
 	options.AddDefaultPolicy(policy =>
@@ -39,22 +31,36 @@ app.MapHub<WsHub>("/ws", options =>
 
 app.MapPost("/send",
 	static async (
-		[FromServices] IHubContext<WsHub> hubContext, [FromServices] ILogger<Program> logger,
-		[FromQuery] string? id, [FromBody] string? data
+		[FromServices] IHubContext<WsHub> hubContext,
+		[FromServices] ILogger<Program> logger,
+		HttpContext context
 	) =>
 	{
-		if (string.IsNullOrWhiteSpace(id) || id.Length > 64)
-			return Results.BadRequest("Connection ID is required and must be at most 64 characters long.");
+		string? id = context.Request.Query["id"].FirstOrDefault();
+
+		// Id validation
+		if (string.IsNullOrEmpty(id) || id.Length > 32)
+			return Results.StatusCode(StatusCodes.Status400BadRequest);
 
 		foreach (char c in id)
-			if (!char.IsLetterOrDigit(c) && c != '-' && c != '_')
-				return Results.BadRequest("Connection ID contains invalid characters.");
+			if (!char.IsAsciiLetterOrDigit(c) && c is not ('-' or '_'))
+				return Results.StatusCode(StatusCodes.Status400BadRequest);
 
-		if (string.IsNullOrWhiteSpace(data) || data.Length > 66_560)
-			return Results.BadRequest("Body is required and must be at most 66,560 characters long.");
+		// Content validation
+		if (context.Request.ContentType is not "text/plain")
+			return Results.StatusCode(StatusCodes.Status415UnsupportedMediaType);
 
-		logger.LogDebug("Received payload for connection '{id}' (package length: {len})", id, data.Length);
-		await hubContext.Clients.Client(id).SendAsync("ReceiveData", data);
+		if (context.Request.ContentLength is < 1 or > 66_560)
+			return Results.StatusCode(StatusCodes.Status400BadRequest);
+
+		// Sending data
+		if (logger.IsEnabled(LogLevel.Debug))
+			logger.LogDebug("Received payload for connection '{id}' (package length: {len} B)", id, context.Request.ContentLength);
+
+		using StreamReader reader = new(context.Request.Body);
+		string? data = await reader.ReadToEndAsync();
+
+		await hubContext.Clients.Client(id).SendAsync("OnMessage", data);
 
 		return Results.Ok();
 	}
@@ -63,6 +69,3 @@ app.MapPost("/send",
 app.Run();
 
 class WsHub : Hub { }
-
-[JsonSerializable(typeof(string))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext { }

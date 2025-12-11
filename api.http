@@ -1,0 +1,68 @@
+@Host = http://localHost:8080
+
+# Valid request
+
+POST {{Host}}/send?id=12345
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: missing id parameter
+
+POST {{Host}}/send
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: empty id parameter
+
+POST {{Host}}/send?id=
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: invalid id parameter (only ASCII alphanumeric, '-' and '_' characters allowed)
+
+POST {{Host}}/send?id=hello+world
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: too long id parameter (more than 32 characters)
+
+POST {{Host}}/send?id=0123456789ABCDEF1234567890ABCDEF0
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: empty body
+POST {{Host}}/send?id=12345
+Content-Type: text/plain
+
+###
+
+# Invalid request: unsupported method
+
+GET {{Host}}/send?id=12345
+Content-Type: text/plain
+
+testdata
+
+###
+
+# Invalid request: incorrect Content-Type
+
+POST {{Host}}/send?id=12345
+Content-Type: application/json
+
+"testdata"

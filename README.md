@@ -34,12 +34,15 @@ sequenceDiagram
 - **SignalR**: `/ws` - WebSocket endpoint for real-time communication.
 - **POST**: `/send?id={connectionId}` - HTTP POST endpoint for sending data to the receiver.
 
-Body of the `/send` endpoint must be of type `Content-Type: application/json`.
+> [!NOTE]
+> For more details on API implementation, restrictions and responses, see [`Program.cs`](/Program.cs) source file.
 
 ### Key points
 
-- The arbitrary channel for `connectionId` tranmission should be as secure as possibe (preferably an offline channel), since posession of `connectionId` can pose a security threat.
+- The arbitrary channel for `connectionId` tranmission should be as secure as possibe (preferably an offline channel), since posession of the `connectionId` can pose a security threat.
 - Connection between Backbone and receiver preferably should be re-established after every transmission to avoid replay attacks.
+- Data sent via HTTP POST is stored in memory only until it is delivered to the receiver. If the receiver is not connected, the data will be discarded (the call still will be resolved with HTTP 200 OK).
+- Data sent via HTTP POST (regardless whether it's an HTTP or HTTPS) *must be* end-to-end encrypted by the sender.
 
 ## Related papers
 
