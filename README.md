@@ -66,7 +66,10 @@ dotnet build			# Build the project for production
 To build a Docker image, run:
 
 ```bash
-docker build -t <tag_name> .
+docker build -t backbone:latest .
+
+# To run the Docker container:
+docker run -d -p 8080:8080 --name backbone_server backbone:latest
 ```
 
 > [!TIP]

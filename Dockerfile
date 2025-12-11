@@ -1,21 +1,20 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine-aot AS build
 WORKDIR /build
 
-# Installing additional dev dependencies for AOT
-RUN apk add clang binutils musl-dev build-base zlib-static
+ADD --link . .
+RUN --mount=type=cache,target=/root/.nuget \
+	--mount=type=cache,target=/build/obj \
+	--mount=type=cache,target=/build/bin \
+	dotnet publish --runtime linux-musl-x64 --configuration Release --output /out \
+		&& rm /out/*.dbg /out/*.endpoints.json /out/appsettings.Development.json
 
-ADD *.csproj .
-RUN dotnet restore --runtime linux-musl-x64
-
-ADD . ./
-RUN dotnet publish --configuration Release --no-restore --output /out
-
-FROM scratch AS prod
+# Production stage
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS prod
 WORKDIR /app
 
-COPY --from=build /out/Backbone .
-COPY --from=build /out/appsettings*.json .
+COPY --link --from=build /out/Backbone .
 
-EXPOSE 80
+USER $APP_UID
+EXPOSE 8080
 ENTRYPOINT [ "./Backbone" ]
-CMD [ "--urls", "http://*:80" ]
