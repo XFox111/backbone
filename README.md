@@ -53,7 +53,7 @@ sequenceDiagram
 ### Prerequisites
 
 For development you can use [Dev Containers](https://devcontainers.io/) or [GitHub Codespaces](https://github.com/features/codespaces). Otherwise you will need to install following tools:
-- [.NET SDK 9](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker](https://www.docker.com/)
 
 
