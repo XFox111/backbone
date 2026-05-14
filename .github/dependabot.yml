@@ -10,7 +10,6 @@ updates:
 
   - package-ecosystem: "nuget" # See documentation for possible values
     directory: "/" # Location of package manifests
-    target-branch: "next"
     assignees:
       - "XFox111"
     schedule:
@@ -23,7 +22,6 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "next"
     assignees:
       - "XFox111"
     schedule:
@@ -36,7 +34,6 @@ updates:
 
   - package-ecosystem: "devcontainers"
     directory: "/"
-    target-branch: "next"
     assignees:
       - "XFox111"
     schedule:
@@ -49,7 +46,6 @@ updates:
 
   - package-ecosystem: "docker"
     directory: "/"
-    target-branch: "next"
     assignees:
       - "XFox111"
     schedule:
