@@ -3,14 +3,20 @@
 {
 	"name": "Backbone",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-10.0-noble",
+	"image": "mcr.microsoft.com/devcontainers/base:resolute",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:4": {
+			"moby": false,
 			"installDockerBuildx": true,
+			"iptablesSwitchAtRuntime": true,
 			"version": "latest",
 			"dockerDashComposeVersion": "latest"
+		},
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"tabCompletions": true,
+			"version": "latest"
 		}
 	},
 
@@ -32,7 +38,7 @@
 				"bierner.github-markdown-preview",
 				"github.vscode-github-actions",
 				"GitHub.vscode-pull-request-github",
-				"Gruntfuggly.todo-tree",
+				"FanaticPythoner.better-todo-tree",
 				"ms-dotnettools.csdevkit",
 				"patcx.vscode-nuget-gallery",
 				"saeris.markdown-github-alerts",
